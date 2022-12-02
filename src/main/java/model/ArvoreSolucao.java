@@ -68,4 +68,9 @@ public class ArvoreSolucao {
         });
     }
 
+    public Integer getPesoDaTransicaoByOrigemByDestino(Estado origem, Estado destino) {
+        return getTransicoesByOrigemByDestino(origem,destino).stream()
+                .findFirst().orElse(null).getPeso();
+    }
+
 }
