@@ -21,6 +21,10 @@ public class IASimulador {
     }
 
     public void buscaGulosa() {
+        iniciarBusca(Estado::getValorHeuristica);
+    }
+
+    public void iniciarBusca(Function<Estado, Integer> funcaoAvaliacao) {
         abertos = new LinkedBlockingQueue<>();
         fechados = new ArrayList<>();
         arvoreSolucao = new ArvoreSolucao();
@@ -36,8 +40,8 @@ public class IASimulador {
             } else {
                 List<Estado> estadosFilhos = gerarFilhos(estadoAtual);
                 abertos.addAll(estadosFilhos);
-                abertos = ordenarPodar(Estado::getValorHeuristica);
                 arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,0);
+                abertos = ordenarRemoverDuplicatas(funcaoAvaliacao);
                 abertos.remove(estadoAtual);
                 fechados.add(estadoAtual);
                 estadoAtual = abertos.poll();
@@ -47,32 +51,10 @@ public class IASimulador {
     }
 
     public void buscaAEstrela() {
-        abertos = new LinkedBlockingQueue<>();
-        fechados = new ArrayList<>();
-        arvoreSolucao = new ArvoreSolucao();
-
-        Estado estadoAtual = new Estado(Constantes.estadoInicial, null,0);
-
-        arvoreSolucao.adicionarEstado(estadoAtual);
-
-        while (estadoAtual != null) {
-            if(isEstadoFinal(estadoAtual)) {
-                construirSolucao(estadoAtual,arvoreSolucao);
-                return;
-            } else {
-                List<Estado> estadosFilhos = gerarFilhos(estadoAtual);
-                abertos.addAll(estadosFilhos);
-                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,0);
-                abertos = ordenarPodar(this::getFuncaoAvalicao);
-                abertos.remove(estadoAtual);
-                fechados.add(estadoAtual);
-                estadoAtual = abertos.poll();
-            }
-        }
-        throw  new RuntimeException("Problema não possui solução");
+        iniciarBusca(this::getFuncaoAvalicao);
     }
 
-    private LinkedBlockingQueue<Estado> ordenarPodar(Function<Estado, Integer> funcaoAvaliacao) {
+    private LinkedBlockingQueue<Estado> ordenarRemoverDuplicatas(Function<Estado, Integer> funcaoAvaliacao) {
         return abertos.stream()
                 .sorted(Comparator.comparingInt(funcaoAvaliacao::apply)) // ordena
                 .distinct() // deixa somente o estado de menor função avaliação (poda)
@@ -96,7 +78,7 @@ public class IASimulador {
 
     private void imprimirSolucao(Stack<Estado> pilha, Integer custoReal) {
         System.out.println("Custo real: "+custoReal);
-        System.out.println("\nOrdem na solução:\n");
+        System.out.println("Ordem na solução:");
         while (!pilha.isEmpty()) {
             Estado estado = pilha.pop();
             System.out.println(estado);
