@@ -115,6 +115,6 @@ public class IASimulador {
 
     private Integer getFuncaoAvalicao(Estado estado) {
         return estado.getValorHeuristica() +
-                arvoreSolucao.getPesoDaTransicaoByOrigemByDestino(estado.getEstadoPai(),estado);
+                arvoreSolucao.calcularPesoCaminho(estado);
     }
 }

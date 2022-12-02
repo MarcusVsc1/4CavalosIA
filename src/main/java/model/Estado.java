@@ -63,4 +63,9 @@ public class Estado {
         return String.format("[%s]",this.tabuleiro);
     }
 
+    @Override
+    public int hashCode() {
+        return tabuleiro.hashCode();
+    }
+
 }

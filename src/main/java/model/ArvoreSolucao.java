@@ -12,6 +12,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 
@@ -73,4 +74,14 @@ public class ArvoreSolucao {
                 .findFirst().orElse(null).getPeso();
     }
 
+    public Integer calcularPesoCaminho(Estado estado) {
+        Estado estadoPai = estado.getEstadoPai();
+        Integer custo = 0;
+        while (estadoPai != null) {
+            custo+= getPesoDaTransicaoByOrigemByDestino(estadoPai,estado);
+            estado = estadoPai;
+            estadoPai = estado.getEstadoPai();
+        }
+        return custo;
+    }
 }
