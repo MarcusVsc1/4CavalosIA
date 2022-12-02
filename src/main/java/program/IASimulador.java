@@ -24,6 +24,10 @@ public class IASimulador {
         iniciarBusca(Estado::getValorHeuristica);
     }
 
+    public void buscaAEstrela() {
+        iniciarBusca(this::getFuncaoAvalicao);
+    }
+
     public void iniciarBusca(Function<Estado, Integer> funcaoAvaliacao) {
         abertos = new LinkedBlockingQueue<>();
         fechados = new ArrayList<>();
@@ -48,10 +52,6 @@ public class IASimulador {
             }
         }
         throw  new RuntimeException("Problema não possui solução");
-    }
-
-    public void buscaAEstrela() {
-        iniciarBusca(this::getFuncaoAvalicao);
     }
 
     private LinkedBlockingQueue<Estado> ordenarRemoverDuplicatas(Function<Estado, Integer> funcaoAvaliacao) {
