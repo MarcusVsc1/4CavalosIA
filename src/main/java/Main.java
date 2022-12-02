@@ -4,7 +4,7 @@ public class Main {
 
     public static void main(String[] args) {
         IASimulador iaSimulador = new IASimulador();
-        iaSimulador.buscaAEstrela();
+        iaSimulador.buscaIdaEstrela();
     }
 
 }

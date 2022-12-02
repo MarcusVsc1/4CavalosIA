@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class IASimulador {
 
@@ -15,6 +16,8 @@ public class IASimulador {
     private List<Estado> fechados;
 
     private ArvoreSolucao arvoreSolucao;
+
+    private Integer limite;
 
     public Boolean isEstadoFinal(Estado estado){
         return Objects.equals(estado.getTabuleiro(),Constantes.estadoFinal);
@@ -28,6 +31,7 @@ public class IASimulador {
         iniciarBusca(this::getFuncaoAvalicao);
     }
 
+    //serve para a busca gulosa e a heurística, alterando apenas a função avaliação
     public void iniciarBusca(Function<Estado, Integer> funcaoAvaliacao) {
         abertos = new LinkedBlockingQueue<>();
         fechados = new ArrayList<>();
@@ -45,8 +49,7 @@ public class IASimulador {
                 List<Estado> estadosFilhos = gerarFilhos(estadoAtual);
                 abertos.addAll(estadosFilhos);
                 arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,0);
-                abertos = ordenarRemoverDuplicatas(funcaoAvaliacao);
-                abertos.remove(estadoAtual);
+                abertos = ordenarRemoverDuplicatas(funcaoAvaliacao, abertos);
                 fechados.add(estadoAtual);
                 estadoAtual = abertos.poll();
             }
@@ -54,13 +57,53 @@ public class IASimulador {
         throw  new RuntimeException("Problema não possui solução");
     }
 
-    private LinkedBlockingQueue<Estado> ordenarRemoverDuplicatas(Function<Estado, Integer> funcaoAvaliacao) {
-        return abertos.stream()
-                .sorted(Comparator.comparingInt(funcaoAvaliacao::apply)) // ordena
-                .distinct() // deixa somente o estado de menor função avaliação (poda)
-                .collect(Collectors.toCollection(LinkedBlockingQueue::new));
+    public void buscaIdaEstrela() {
+        Integer iteracao = 0;
+        abertos = new LinkedBlockingQueue<>();
+        fechados = new ArrayList<>();
+        LinkedBlockingQueue<Estado> descartados = new LinkedBlockingQueue<>();
+        arvoreSolucao = new ArvoreSolucao();
+        System.out.println("Iteração: "+iteracao);
+        Estado estadoAtual = new Estado(Constantes.estadoInicial, null,0);
+
+        arvoreSolucao.adicionarEstado(estadoAtual);
+        limite = getFuncaoAvalicao(estadoAtual);
+
+        while (estadoAtual != null) {
+            if(isEstadoFinal(estadoAtual)) {
+                construirSolucao(estadoAtual,arvoreSolucao);
+                return;
+            } else {
+                List<Estado> estadosFilhos = gerarFilhos(estadoAtual);
+                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,0);
+                Stream<Estado> filhosIn = estadosFilhos.stream()
+                        .filter(estado -> getFuncaoAvalicao(estado) <= limite)
+                        .sorted(Comparator.comparingInt(this::getFuncaoAvalicao));
+                abertos = Stream.concat(filhosIn, abertos.stream())
+                        .collect(Collectors.toCollection(LinkedBlockingQueue::new));
+                descartados.addAll(estadosFilhos.stream()
+                        .filter(estado -> getFuncaoAvalicao(estado) > limite)
+                        .collect(Collectors.toList()));
+                fechados.add(estadoAtual);
+                estadoAtual = abertos.poll();
+                if(estadoAtual == null && descartados.size()>0) {
+                    descartados = ordenarRemoverDuplicatas(this::getFuncaoAvalicao, descartados);
+                    estadoAtual = descartados.poll();
+                    limite = getFuncaoAvalicao(estadoAtual);
+                    iteracao++;
+                    System.out.println("Iteração: "+iteracao);
+                }
+            }
+        }
+        throw  new RuntimeException("Problema não possui solução");
     }
 
+    private LinkedBlockingQueue<Estado> ordenarRemoverDuplicatas(Function<Estado, Integer> funcaoAvaliacao, Collection<Estado> collection) {
+        return collection.stream()
+                .sorted(Comparator.comparingInt(funcaoAvaliacao::apply)) // ordena
+                .distinct() // deixa somente o estado de menor função avaliação dentre os de tabuleiro igual
+                .collect(Collectors.toCollection(LinkedBlockingQueue::new));
+    }
 
     private void construirSolucao(Estado estadoAtual, ArvoreSolucao arvoreSolucao) {
         Estado estadoPai = estadoAtual.getEstadoPai();
