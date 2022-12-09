@@ -31,7 +31,11 @@ public class IASimulador {
         iniciarBusca(this::getFuncaoAvalicao);
     }
 
-    //serve para a busca gulosa e a heurística, alterando apenas a função avaliação
+    public void buscaOrdenada() {
+        iniciarBusca(this::getPesoOrdenada);
+    }
+
+    //serve para a busca ordenada, gulosa e a A*, alterando apenas a função avaliação
     public void iniciarBusca(Function<Estado, Integer> funcaoAvaliacao) {
         abertos = new LinkedBlockingQueue<>();
         fechados = new ArrayList<>();
@@ -48,7 +52,7 @@ public class IASimulador {
             } else {
                 List<Estado> estadosFilhos = gerarFilhos(estadoAtual);
                 abertos.addAll(estadosFilhos);
-                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,0);
+                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,1);
                 abertos = ordenarRemoverDuplicatas(funcaoAvaliacao, abertos);
                 fechados.add(estadoAtual);
                 estadoAtual = abertos.poll();
@@ -75,7 +79,7 @@ public class IASimulador {
                 return;
             } else {
                 List<Estado> estadosFilhos = gerarFilhos(estadoAtual);
-                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,0);
+                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,1);
                 Stream<Estado> filhosIn = estadosFilhos.stream()
                         .filter(estado -> getFuncaoAvalicao(estado) <= limite)
                         .sorted(Comparator.comparingInt(this::getFuncaoAvalicao));
@@ -141,5 +145,9 @@ public class IASimulador {
     private Integer getFuncaoAvalicao(Estado estado) {
         return estado.getValorHeuristica() +
                 arvoreSolucao.calcularPesoCaminho(estado);
+    }
+
+    private Integer getPesoOrdenada(Estado estado) {
+        return arvoreSolucao.getPesoDaTransicaoByOrigemByDestino(estado.getEstadoPai(),estado);
     }
 }
