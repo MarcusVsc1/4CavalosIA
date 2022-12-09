@@ -148,6 +148,6 @@ public class IASimulador {
     }
 
     private Integer getPesoOrdenada(Estado estado) {
-        return arvoreSolucao.getPesoDaTransicaoByOrigemByDestino(estado.getEstadoPai(),estado);
+        return arvoreSolucao.calcularPesoCaminho(estado);
     }
 }
