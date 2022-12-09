@@ -1,5 +1,6 @@
 package enums;
 
+import utils.Constantes;
 import utils.ListaCircular;
 
 public enum Regra {
@@ -37,12 +38,17 @@ public enum Regra {
     }
 
     public ListaCircular<Cavalo> executarMovimento(ListaCircular<Cavalo> tabuleiro){
+
         Integer index = tabuleiro.indexOf(this.cavalo);
         ListaCircular<Cavalo> tabuleiroClone = (ListaCircular<Cavalo>) tabuleiro.clone();
-        if(tabuleiro.getCircular(index,offset)==null){
+
+        if(tabuleiro.getCircular(index,offset)==null &&
+            index != Constantes.estadoFinal.indexOf(this.cavalo)){
+
             tabuleiroClone.setCircular(index,offset,this.cavalo);
             tabuleiroClone.set(index,null);
             return tabuleiroClone;
+
         }
 
         return null;
