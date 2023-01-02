@@ -6,6 +6,7 @@ import enums.Regra;
 import java.util.Arrays;
 import java.util.List;
 
+// constantes que vão ser usadas em todas as buscas
 public class Constantes {
 
     public static final ListaCircular estadoInicial = new ListaCircular(Arrays.

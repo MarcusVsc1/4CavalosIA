@@ -52,15 +52,16 @@ public class IASimulador {
             } else {
                 List<Estado> estadosFilhos = gerarFilhos(estadoAtual);
                 abertos.addAll(estadosFilhos);
-                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,1);
+                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual);
                 abertos = ordenarRemoverDuplicatas(funcaoAvaliacao, abertos);
                 fechados.add(estadoAtual);
                 estadoAtual = abertos.poll();
             }
         }
-        throw  new RuntimeException("Problema não possui solução");
+        throw new RuntimeException("Problema não possui solução");
     }
 
+    // função de busca usada apenas pela IDA*, pois a busca se difere das demais
     public void buscaIdaEstrela() {
         Integer iteracao = 0;
         abertos = new LinkedBlockingQueue<>();
@@ -79,7 +80,7 @@ public class IASimulador {
                 return;
             } else {
                 List<Estado> estadosFilhos = gerarFilhos(estadoAtual);
-                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual,1);
+                arvoreSolucao.adicionarTodos(estadosFilhos,estadoAtual);
                 Stream<Estado> filhosIn = estadosFilhos.stream()
                         .filter(estado -> getFuncaoAvalicao(estado) <= limite)
                         .sorted(Comparator.comparingInt(this::getFuncaoAvalicao));
@@ -102,6 +103,7 @@ public class IASimulador {
         throw  new RuntimeException("Problema não possui solução");
     }
 
+    // função usada para ordenar lista de abertos e retirar estados duplicados
     private LinkedBlockingQueue<Estado> ordenarRemoverDuplicatas(Function<Estado, Integer> funcaoAvaliacao, Collection<Estado> collection) {
         return collection.stream()
                 .sorted(Comparator.comparingInt(funcaoAvaliacao::apply)) // ordena
@@ -109,6 +111,8 @@ public class IASimulador {
                 .collect(Collectors.toCollection(LinkedBlockingQueue::new));
     }
 
+    // função que constrói a solução a solução, a partir do estado final coloca todos pai em uma pilha e
+    // desempilha ao final para montar o caminho solução
     private void construirSolucao(Estado estadoAtual, ArvoreSolucao arvoreSolucao) {
         Estado estadoPai = estadoAtual.getEstadoPai();
         Integer custoReal = 0;
@@ -129,10 +133,10 @@ public class IASimulador {
         while (!pilha.isEmpty()) {
             Estado estado = pilha.pop();
             System.out.println(estado);
-            System.out.println(estado.getValorHeuristica());
         }
     }
 
+    // função que gera os filhos de um estado a partir de cada regra de transição e retira todos os inválidos
     private List<Estado> gerarFilhos(Estado estadoAtual) {
         return Constantes.regras.stream()
                 .map(regra -> regra.executarMovimento(estadoAtual.getTabuleiro()))
@@ -141,7 +145,7 @@ public class IASimulador {
                 .collect(Collectors.toList());
     }
 
-
+    // função que calcula a função avaliação para A* e IDA*
     private Integer getFuncaoAvalicao(Estado estado) {
         return estado.getValorHeuristica() +
                 arvoreSolucao.calcularPesoCaminho(estado);

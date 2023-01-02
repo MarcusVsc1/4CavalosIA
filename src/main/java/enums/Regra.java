@@ -37,12 +37,15 @@ public enum Regra {
         this.cavalo = cavalo;
     }
 
+    // tendo um tabuleiro como base, executa um movimento
+    // retorna o novo tabuleiro com o movimento feito ou null se o movimento for inválido
     public ListaCircular<Cavalo> executarMovimento(ListaCircular<Cavalo> tabuleiro){
 
         Integer index = tabuleiro.indexOf(this.cavalo);
         ListaCircular<Cavalo> tabuleiroClone = (ListaCircular<Cavalo>) tabuleiro.clone();
 
-        if(tabuleiro.getCircular(index,offset)==null &&
+        // se o get for null, a posição está vazia
+        if(tabuleiro.getCircular(index,offset) == null &&
             index != Constantes.estadoFinal.indexOf(this.cavalo)){
 
             tabuleiroClone.setCircular(index,offset,this.cavalo);

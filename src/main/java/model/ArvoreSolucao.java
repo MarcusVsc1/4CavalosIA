@@ -51,7 +51,8 @@ public class ArvoreSolucao {
         this.estados.remove(estado);
     }
 
-    public void adicionarTodos(List<Estado> estados, Estado origem, Integer peso) {
+    // adiciona todos os estados da lista para a árvore
+    public void adicionarTodos(List<Estado> estados, Estado origem) {
         estados.forEach(estado -> {
             adicionarEstado(estado);
             adicionarTransicao(new Transicao(1,origem,estado));
@@ -63,6 +64,7 @@ public class ArvoreSolucao {
                 .findFirst().orElse(null).getPeso();
     }
 
+    // soma o valor das transições até a raiz
     public Integer calcularPesoCaminho(Estado estado) {
         Estado estadoPai = estado.getEstadoPai();
         Integer custo = 0;

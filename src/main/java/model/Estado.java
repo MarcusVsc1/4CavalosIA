@@ -24,6 +24,7 @@ public class Estado {
         this.nivel = nivel;
     }
 
+    // heurística: soma da quantidade de posições necessária para cada cavalo chegar em sua posição final
     private Integer calcularHeuristica() {
 
         return Math.min(Math.abs(this.tabuleiro.indexOf(Cavalo.B1) - Constantes.estadoFinal.indexOf(Cavalo.B1)),
