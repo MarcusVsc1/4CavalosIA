@@ -15,7 +15,7 @@ public class IASimulador {
     private Queue<Estado> abertos;
     private List<Estado> fechados;
 
-    private ArvoreSolucao arvoreSolucao;
+    private ArvoreSolucao arvoreSolucao = new ArvoreSolucao();
 
     private Integer limite;
 
@@ -32,14 +32,13 @@ public class IASimulador {
     }
 
     public void buscaOrdenada() {
-        iniciarBusca(this::getPesoOrdenada);
+        iniciarBusca(arvoreSolucao::calcularPesoCaminho);
     }
 
     //serve para a busca ordenada, gulosa e a A*, alterando apenas a função avaliação
     public void iniciarBusca(Function<Estado, Integer> funcaoAvaliacao) {
         abertos = new LinkedBlockingQueue<>();
         fechados = new ArrayList<>();
-        arvoreSolucao = new ArvoreSolucao();
 
         Estado estadoAtual = new Estado(Constantes.estadoInicial, null,0);
 
@@ -67,7 +66,7 @@ public class IASimulador {
         abertos = new LinkedBlockingQueue<>();
         fechados = new ArrayList<>();
         LinkedBlockingQueue<Estado> descartados = new LinkedBlockingQueue<>();
-        arvoreSolucao = new ArvoreSolucao();
+
         System.out.println("Iteração: "+iteracao);
         Estado estadoAtual = new Estado(Constantes.estadoInicial, null,0);
 
@@ -151,7 +150,4 @@ public class IASimulador {
                 arvoreSolucao.calcularPesoCaminho(estado);
     }
 
-    private Integer getPesoOrdenada(Estado estado) {
-        return arvoreSolucao.calcularPesoCaminho(estado);
-    }
 }
