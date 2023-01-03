@@ -1,5 +1,7 @@
 package model;
 
+import enums.Cavalo;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -55,8 +57,42 @@ public class ArvoreSolucao {
     public void adicionarTodos(List<Estado> estados, Estado origem) {
         estados.forEach(estado -> {
             adicionarEstado(estado);
-            adicionarTransicao(new Transicao(1,origem,estado));
+            adicionarTransicao(new Transicao(calcularPesoAdicional(origem, estado) + 1 ,origem,estado));
         });
+    }
+
+    private Integer calcularPesoAdicional(Estado origem, Estado filho) {
+        Cavalo cavaloDiferente = verificarCavaloDiferente(origem,filho);
+
+        if(cavaloDiferente.equals(Cavalo.B1) &&
+            Cavalo.B2.equals(filho.getTabuleiro().getCircular(filho.getTabuleiro().indexOf(Cavalo.B1), 1))){
+            return 2;
+        }
+
+        if(cavaloDiferente.equals(Cavalo.B2) &&
+                Cavalo.P2.equals(filho.getTabuleiro().getCircular(filho.getTabuleiro().indexOf(Cavalo.B2), 1))){
+            return 1;
+        }
+
+        if(cavaloDiferente.equals(Cavalo.P1) &&
+                Cavalo.B1.equals(filho.getTabuleiro().getCircular(filho.getTabuleiro().indexOf(Cavalo.P1), 1))){
+            return 1;
+        }
+
+        if(cavaloDiferente.equals(Cavalo.P2) &&
+                Cavalo.P1.equals(filho.getTabuleiro().getCircular(filho.getTabuleiro().indexOf(Cavalo.P2), 1))){
+            return 2;
+        }
+
+        return 0;
+    }
+
+    private Cavalo verificarCavaloDiferente(Estado origem, Estado filho) {
+        if (origem.getTabuleiro().indexOf(Cavalo.B1) != filho.getTabuleiro().indexOf(Cavalo.B1)) return Cavalo.B1;
+        if (origem.getTabuleiro().indexOf(Cavalo.B2) != filho.getTabuleiro().indexOf(Cavalo.B2)) return Cavalo.B2;
+        if (origem.getTabuleiro().indexOf(Cavalo.P1) != filho.getTabuleiro().indexOf(Cavalo.P1)) return Cavalo.P1;
+        if (origem.getTabuleiro().indexOf(Cavalo.P2) != filho.getTabuleiro().indexOf(Cavalo.P2)) return Cavalo.P2;
+        return  null;
     }
 
     public Integer getPesoDaTransicaoByOrigemByDestino(Estado origem, Estado destino) {
@@ -74,5 +110,9 @@ public class ArvoreSolucao {
             estadoPai = estado.getEstadoPai();
         }
         return custo;
+    }
+
+    public Integer getTotalDeNos() {
+        return this.estados.size();
     }
 }

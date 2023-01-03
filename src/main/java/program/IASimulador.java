@@ -67,11 +67,16 @@ public class IASimulador {
         fechados = new ArrayList<>();
         LinkedBlockingQueue<Estado> descartados = new LinkedBlockingQueue<>();
 
-        System.out.println("Iteração: "+iteracao);
+
         Estado estadoAtual = new Estado(Constantes.estadoInicial, null,0);
+
 
         arvoreSolucao.adicionarEstado(estadoAtual);
         limite = getFuncaoAvalicao(estadoAtual);
+        System.out.println("Iteração: "+iteracao);
+        System.out.println("Limite: "+limite);
+        System.out.println("Estado atual: "+ estadoAtual);
+        System.out.println("Valor da função avaliação atual:"+getFuncaoAvalicao(estadoAtual));
 
         while (estadoAtual != null) {
             if(isEstadoFinal(estadoAtual)) {
@@ -89,13 +94,22 @@ public class IASimulador {
                         .filter(estado -> getFuncaoAvalicao(estado) > limite)
                         .collect(Collectors.toList()));
                 fechados.add(estadoAtual);
+                System.out.println("Abertos: "+ abertos);
+                System.out.println("Descartados: "+descartados);
                 estadoAtual = abertos.poll();
+                if(estadoAtual != null) {
+                    System.out.println("Estado atual: "+estadoAtual);
+                    System.out.println("Valor da função avaliação atual:"+getFuncaoAvalicao(estadoAtual));
+                }
                 if(estadoAtual == null && descartados.size()>0) {
                     descartados = ordenarRemoverDuplicatas(this::getFuncaoAvalicao, descartados);
                     estadoAtual = descartados.poll();
                     limite = getFuncaoAvalicao(estadoAtual);
                     iteracao++;
+                    System.out.println("========================================================");
                     System.out.println("Iteração: "+iteracao);
+                    System.out.println("Limite: "+limite);
+                    System.out.println("========================================================");
                 }
             }
         }
@@ -103,7 +117,8 @@ public class IASimulador {
     }
 
     // função usada para ordenar lista de abertos e retirar estados duplicados
-    private LinkedBlockingQueue<Estado> ordenarRemoverDuplicatas(Function<Estado, Integer> funcaoAvaliacao, Collection<Estado> collection) {
+    private LinkedBlockingQueue<Estado> ordenarRemoverDuplicatas(Function<Estado, Integer> funcaoAvaliacao,
+                                                                 Collection<Estado> collection) {
         return collection.stream()
                 .sorted(Comparator.comparingInt(funcaoAvaliacao::apply)) // ordena
                 .distinct() // deixa somente o estado de menor função avaliação dentre os de tabuleiro igual
@@ -129,10 +144,13 @@ public class IASimulador {
     private void imprimirSolucao(Stack<Estado> pilha, Integer custoReal) {
         System.out.println("Custo real: "+custoReal);
         System.out.println("Ordem na solução:");
+        Estado estado = null;
         while (!pilha.isEmpty()) {
-            Estado estado = pilha.pop();
+            estado = pilha.pop();
             System.out.println(estado);
         }
+        System.out.println("Nível da solução: " + estado.getNivel());
+        System.out.println("Total de nós: " + arvoreSolucao.getTotalDeNos());
     }
 
     // função que gera os filhos de um estado a partir de cada regra de transição e retira todos os inválidos
